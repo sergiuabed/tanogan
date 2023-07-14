@@ -7,10 +7,10 @@ def z_loss(time_sequences, fake_sequences, discriminator, _lambda):
     a latent variable 'z' and as anomaly score.
 
     This loss is the sum of 2 losses:
-        - residual loss: the squared norm (CHECK THIS AGAIN!!!) of the difference
+        - residual loss: the sum of the absolute value of the components of the difference
             between a real time sequence and a generated one by the generator
 
-        - discrimination loss: the squared norm (CHECK THIS AGAIN!!!) of the difference
+        - discrimination loss: the sum of the absolute value of the components of the difference
             between the outputs of the LSTM layer of the discriminator when the inputs
             are a real time sequence and a generated one
     '''
@@ -42,7 +42,7 @@ def latent_space_map(time_sequences, num_iters, generator, discriminator, z_opti
     '''
     z = tf.random.normal(time_sequences.shape, mean=0, stddev=0.1)
 
-    for i in range(num_iters):
+    for _ in range(num_iters):
         loss = None
         with tf.GradientTape() as tape:
             generated_sequences = generator(z)
