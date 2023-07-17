@@ -100,7 +100,7 @@ def get_standardizer(X_train):
     return scaler
 
 def standardization(X, standardizer):
-    X_train_norm = pd.DataFrame(standardizer.transform(X), columns=X.columns)
+    X_train_norm = pd.DataFrame(standardizer.transform(X), columns=X.columns, index=X.index)
 
     return X_train_norm
 
