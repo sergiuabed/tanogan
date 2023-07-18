@@ -21,7 +21,7 @@ def adversarial_training(generator, discriminator, data, batch_size, windows_siz
             #Train with fake data
             noise = tf.random.normal(time_sequences.shape, mean=0, stddev=0.1)
             fake_sequences = generator(noise)
-            fake_labels = tf.ones(noise.shape) * fake_label
+            fake_labels = tf.ones(labels.shape) * fake_label
 
             with tf.GradientTape() as tape:
                 scores = discriminator(fake_sequences)
