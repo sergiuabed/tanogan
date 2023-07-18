@@ -14,8 +14,9 @@ def z_loss(time_sequences, fake_sequences, discriminator, _lambda):
             between the outputs of the LSTM layer of the discriminator when the inputs
             are a real time sequence and a generated one
     '''
-    residual_loss = tf.reduce_sum(abs(tf.cast(time_sequences, tf.double) - tf.cast(fake_sequences, tf.double))) # casting both to tf.double because of an error
-    
+    #residual_loss = tf.reduce_sum(abs(tf.cast(time_sequences, tf.double) - tf.cast(fake_sequences, tf.double))) # casting both to tf.double because of an error
+    residual_loss = tf.reduce_sum(abs(time_sequences - fake_sequences))
+
     interm_layer = discriminator.layers[0]  # LSTM layer
     
     features_real = interm_layer(time_sequences)
