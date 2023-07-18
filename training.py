@@ -12,7 +12,7 @@ def adversarial_training(generator, discriminator, data, batch_size, windows_siz
 
             #Train with real data
             with tf.GradientTape() as tape:
-                scores = discriminator()
+                scores = discriminator(time_sequences)
                 discr_real_loss = loss_fn(labels, scores)
 
             gradients = tape.gradient(discr_real_loss, discriminator.trainable_weights)
