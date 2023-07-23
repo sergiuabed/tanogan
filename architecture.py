@@ -15,6 +15,7 @@ def init_generator(in_dim, out_dim):
             layers.LSTM(32, return_sequences=True),
             layers.LSTM(64, return_sequences=True),
             layers.LSTM(128),
+            layers.Flatten(),
             layers.Dense(nr_units_dense, activation="tanh"),
             layers.Reshape(out_dim)
         ]
@@ -28,6 +29,7 @@ def init_discriminator(in_dim, out_dim):
         [
             keras.Input(shape=in_dim),
             layers.LSTM(100),
+            layers.Flatten(),
             layers.Dense(out_dim, activation="sigmoid")   # out_dim should be (1,)
         ]
     )
