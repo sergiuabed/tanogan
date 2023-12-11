@@ -1,6 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 
+# All functions in this file correspond to TAnoGAN anomaly detection functionality 
+
 def z_loss(time_sequences, fake_sequences, discriminator, _lambda):
     '''
     This function acts as both loss function when mapping a time sequence to
@@ -14,11 +16,11 @@ def z_loss(time_sequences, fake_sequences, discriminator, _lambda):
             between the outputs of the LSTM layer of the discriminator when the inputs
             are a real time sequence and a generated one
     '''
-    #residual_loss = tf.reduce_sum(abs(tf.cast(time_sequences, tf.double) - tf.cast(fake_sequences, tf.double))) # casting both to tf.double because of an error
+    # residual_loss = tf.reduce_sum(abs(tf.cast(time_sequences, tf.double) - tf.cast(fake_sequences, tf.double))) # casting both to tf.double because of an error
     residual_loss = tf.reduce_sum(abs(time_sequences - fake_sequences))
 
     interm_layer = discriminator.layers[0]  # LSTM layer
-    
+
     features_real = interm_layer(time_sequences)
     features_fake = interm_layer(fake_sequences)
 
@@ -27,6 +29,7 @@ def z_loss(time_sequences, fake_sequences, discriminator, _lambda):
     total_loss = (1-_lambda)*residual_loss + _lambda*discrimination_loss
 
     return total_loss
+
 
 def latent_space_map(time_sequences, num_iters, generator, discriminator, z_optimizer, _lambda):
     '''
@@ -38,22 +41,31 @@ def latent_space_map(time_sequences, num_iters, generator, discriminator, z_opti
     such that G(z) is as close as possible to a given time sequence 'x'
 
     return: the loss between 'time_sequences' and G(z), where 'z' is
-    the latent variable value found after 'num_iters' iterations of 
+    the latent variable value found after 'num_iters' iterations of
     performing gradient descent.
     '''
-    z = tf.random.normal(time_sequences.shape, mean=0, stddev=0.1)
 
+    print(f"Shape of time_sequences: {time_sequences.shape}")
+
+    z = tf.Variable(tf.random.normal(time_sequences.shape, mean=0, stddev=0.1))
+    i = 0
     for _ in range(num_iters):
+        print(f"  iteration: {i}")
+        i += 1
+
         loss = None
         with tf.GradientTape() as tape:
             generated_sequences = generator(z)
-            loss = z_loss(time_sequences, generated_sequences, discriminator, _lambda)
+            loss = z_loss(time_sequences, generated_sequences,
+                          discriminator, _lambda)
+            print(f"    z_loss: {loss}")
 
         gradients = tape.gradient(loss, z)
-        z_optimizer.apply_gradients(zip(gradients, z))
+        z_optimizer.apply_gradients(zip([gradients], [z]))
 
     # maybe compute the loss again before returning
     return loss
+
 
 def anomaly_score(test_data, generator, discriminator, z_optimizer, nr_latent_map_iters, _lambda):
     '''
@@ -62,11 +74,16 @@ def anomaly_score(test_data, generator, discriminator, z_optimizer, nr_latent_ma
 
     # IMPORTANT: DURING ANOMALY DETECTION, SET BATCH_SIZE=1!!!!!!!!!!!!!!!!!!
     # i.e., a batch contains a single window of timesteps
-    
+
+    i = 0
     loss_list = []
     for _, batch in enumerate(test_data):
+        print(f"batch: {i} out of {len(test_data)}")
+        i += 1
+
         loss_list.append(
-            latent_space_map(batch[0], nr_latent_map_iters, generator, discriminator, z_optimizer, _lambda)
-            ) # batch size is 1, so batch[0] points to the window
-        
+            latent_space_map(batch[0], nr_latent_map_iters,
+                             generator, discriminator, z_optimizer, _lambda)
+        )  # batch size is 1, so batch[0] points to the window
+
     return loss_list

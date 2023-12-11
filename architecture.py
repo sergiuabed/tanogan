@@ -3,12 +3,10 @@ from tensorflow import keras
 from keras import layers
 
 def init_generator(in_dim, out_dim):
-#def init_generator(window_dim, in_dim, out_dim):
     nr_units_dense = 1
     for i in out_dim:
         nr_units_dense *= i
 
-    
     generator = keras.Sequential(
         [
             keras.Input(shape=in_dim),
@@ -23,7 +21,6 @@ def init_generator(in_dim, out_dim):
     return generator
 
 def init_discriminator(in_dim, out_dim):
-#def init_discriminator(window_dim, in_dim, out_dim):
     discriminator = keras.Sequential(
         [
             keras.Input(shape=in_dim),
@@ -35,6 +32,10 @@ def init_discriminator(in_dim, out_dim):
     return discriminator
 
 def init_encoder(in_dim, out_dim):
+    '''
+    This neural network (encoder) is used only in
+    our updated model of TAnoGAN, which we call ModifiedTAnoGAN
+    '''
     nr_units_dense = 1
     for i in out_dim:
         nr_units_dense *= i
